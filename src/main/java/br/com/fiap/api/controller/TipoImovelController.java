@@ -2,8 +2,11 @@ package br.com.fiap.api.controller;
 
 import br.com.fiap.api.dao.ImovelDao;
 import br.com.fiap.api.dao.TipoImovelDao;
-import br.com.fiap.api.model.Imovel;
+import br.com.fiap.api.dto.ImovelResponseDto;
+import br.com.fiap.api.dto.TipoImovelRequestDto;
+import br.com.fiap.api.dto.TipoImovelResponseDto;
 import br.com.fiap.api.model.TipoImovel;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,27 +21,34 @@ public class TipoImovelController {
 
     private TipoImovelDao dao;
     private ImovelDao imovelDao;
+    private ModelMapper mapper;
 
-    public TipoImovelController(TipoImovelDao dao, ImovelDao imovelDao) {
+    public TipoImovelController(TipoImovelDao dao, ImovelDao imovelDao, ModelMapper mapper) {
         this.imovelDao = imovelDao;
         this.dao = dao;
+        this.mapper = mapper;
     }
 
     @GetMapping("/{id}/imoveis")
-    public List<Imovel> buscar(@PathVariable int id) throws SQLException {
-        return imovelDao.buscarPorTipo(id);
+    public List<ImovelResponseDto> buscar(@PathVariable int id) throws SQLException {
+        return imovelDao.buscarPorTipo(id).stream()
+                .map(imovel -> mapper.map(imovel, ImovelResponseDto.class))
+                .toList();
     }
 
     @GetMapping
-    public List<TipoImovel> listar() throws SQLException {
-        return dao.listar();
+    public List<TipoImovelResponseDto> listar() throws SQLException {
+        return dao.listar().stream()
+                .map(tipo -> mapper.map(tipo, TipoImovelResponseDto.class))
+                .toList();
     }
 
     @PostMapping
-    public ResponseEntity<TipoImovel> cadastrar(@RequestBody TipoImovel tipo, UriComponentsBuilder builder) throws SQLException {
+    public ResponseEntity<TipoImovelResponseDto> cadastrar(@RequestBody TipoImovelRequestDto dto, UriComponentsBuilder builder) throws SQLException {
+        TipoImovel tipo = mapper.map(dto, TipoImovel.class);
         dao.cadastrar(tipo);
         URI uri = builder.path("tipos-imoveis/{id}").buildAndExpand(tipo.getCodigo()).toUri();
-        return ResponseEntity.created(uri).body(tipo);
+        return ResponseEntity.created(uri).body(mapper.map(tipo, TipoImovelResponseDto.class));
     }
 
 }

@@ -8,10 +8,8 @@ import br.com.fiap.api.model.Imovel;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.print.DocFlavor;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.List;
@@ -35,22 +33,24 @@ public class ImovelController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable int id, @RequestBody ImovelRequestDto dto) throws EntidadeNaoEncontradaException, SQLException {
+    public ResponseEntity<ImovelResponseDto> atualizar(@PathVariable int id, @RequestBody ImovelRequestDto dto) throws EntidadeNaoEncontradaException, SQLException {
         Imovel imovel = mapper.map(dto, Imovel.class);
         imovel.setCodigo(id);
         dao.atualizar(imovel);
-        return ResponseEntity.ok().build(); //Retorna o Status 200 OK
+        return ResponseEntity.ok(mapper.map(imovel, ImovelResponseDto.class));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Imovel> buscar(@PathVariable int id) throws EntidadeNaoEncontradaException, SQLException {
+    public ResponseEntity<ImovelResponseDto> buscar(@PathVariable int id) throws EntidadeNaoEncontradaException, SQLException {
         Imovel imovel = dao.pesquisarPorId(id);
-        return ResponseEntity.ok(imovel); //Retorna o imovel com o status HTTP 200 OK
+        return ResponseEntity.ok(mapper.map(imovel, ImovelResponseDto.class)); //Retorna o imovel com o status HTTP 200 OK
     }
 
     @GetMapping
-    public List<Imovel> listar() throws SQLException {
-        return dao.listar();
+    public List<ImovelResponseDto> listar() throws SQLException {
+        return dao.listar().stream()
+                .map(imovel -> mapper.map(imovel, ImovelResponseDto.class))
+                .toList();
     }
 
     @PostMapping
