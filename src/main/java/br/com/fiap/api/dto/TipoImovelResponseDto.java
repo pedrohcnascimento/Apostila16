@@ -1,20 +1,10 @@
 package br.com.fiap.api.dto;
 
-import java.time.LocalDateTime;
-
 public class TipoImovelResponseDto {
 
     private int codigo;
+
     private String nome;
-    private LocalDateTime dataCadastro;
-
-    public int getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(int codigo) {
-        this.codigo = codigo;
-    }
 
     public String getNome() {
         return nome;
@@ -24,11 +14,11 @@ public class TipoImovelResponseDto {
         this.nome = nome;
     }
 
-    public LocalDateTime getDataCadastro() {
-        return dataCadastro;
+    public int getCodigo() {
+        return codigo;
     }
 
-    public void setDataCadastro(LocalDateTime dataCadastro) {
-        this.dataCadastro = dataCadastro;
+    public void setCodigo(int codigo) {
+        this.codigo = codigo;
     }
 }

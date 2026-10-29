@@ -5,13 +5,17 @@ import br.com.fiap.api.dto.ImovelRequestDto;
 import br.com.fiap.api.dto.ImovelResponseDto;
 import br.com.fiap.api.exception.EntidadeNaoEncontradaException;
 import br.com.fiap.api.model.Imovel;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.print.DocFlavor;
 import java.net.URI;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -33,11 +37,11 @@ public class ImovelController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ImovelResponseDto> atualizar(@PathVariable int id, @RequestBody ImovelRequestDto dto) throws EntidadeNaoEncontradaException, SQLException {
+    public ResponseEntity<Void> atualizar(@PathVariable int id, @Valid @RequestBody ImovelRequestDto dto) throws EntidadeNaoEncontradaException, SQLException {
         Imovel imovel = mapper.map(dto, Imovel.class);
         imovel.setCodigo(id);
         dao.atualizar(imovel);
-        return ResponseEntity.ok(mapper.map(imovel, ImovelResponseDto.class));
+        return ResponseEntity.ok().build(); //Retorna o Status 200 OK
     }
 
     @GetMapping("/{id}")
@@ -48,13 +52,13 @@ public class ImovelController {
 
     @GetMapping
     public List<ImovelResponseDto> listar() throws SQLException {
-        return dao.listar().stream()
-                .map(imovel -> mapper.map(imovel, ImovelResponseDto.class))
-                .toList();
+        //Converte a lista de Imovel em uma lista de ImovelResponseDto
+        return dao.listar().stream().map(
+                churros -> mapper.map(churros, ImovelResponseDto.class)).toList();
     }
 
     @PostMapping
-    public ResponseEntity<ImovelResponseDto> cadastrar(@RequestBody ImovelRequestDto dto,
+    public ResponseEntity<ImovelResponseDto> cadastrar(@Valid @RequestBody ImovelRequestDto dto,
                                                        UriComponentsBuilder builder) throws SQLException {
 
         Imovel imovel = mapper.map(dto, Imovel.class);

@@ -5,7 +5,9 @@ import br.com.fiap.api.dao.TipoImovelDao;
 import br.com.fiap.api.dto.ImovelResponseDto;
 import br.com.fiap.api.dto.TipoImovelRequestDto;
 import br.com.fiap.api.dto.TipoImovelResponseDto;
+import br.com.fiap.api.model.Imovel;
 import br.com.fiap.api.model.TipoImovel;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,19 +34,20 @@ public class TipoImovelController {
     @GetMapping("/{id}/imoveis")
     public List<ImovelResponseDto> buscar(@PathVariable int id) throws SQLException {
         return imovelDao.buscarPorTipo(id).stream()
-                .map(imovel -> mapper.map(imovel, ImovelResponseDto.class))
-                .toList();
+                .map(i -> mapper.map(i, ImovelResponseDto.class)).toList();
     }
 
     @GetMapping
     public List<TipoImovelResponseDto> listar() throws SQLException {
-        return dao.listar().stream()
-                .map(tipo -> mapper.map(tipo, TipoImovelResponseDto.class))
-                .toList();
+        return dao.listar().stream().map(
+                t -> mapper.map(t, TipoImovelResponseDto.class)).toList();
     }
 
     @PostMapping
-    public ResponseEntity<TipoImovelResponseDto> cadastrar(@RequestBody TipoImovelRequestDto dto, UriComponentsBuilder builder) throws SQLException {
+    public ResponseEntity<TipoImovelResponseDto> cadastrar(
+           @Valid @RequestBody TipoImovelRequestDto dto,
+            UriComponentsBuilder builder) throws SQLException {
+        //Conveter o dto no model
         TipoImovel tipo = mapper.map(dto, TipoImovel.class);
         dao.cadastrar(tipo);
         URI uri = builder.path("tipos-imoveis/{id}").buildAndExpand(tipo.getCodigo()).toUri();
