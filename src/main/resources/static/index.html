@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API de Imóveis</title>
+</head>
+<body>
+  <h1>API de Imóveis</h1>
+  <p id="status">Carregando imóveis...</p>
+  <pre id="imoveis"></pre>
+  <script>
+    (async () => {
+      const status = document.getElementById("status");
+      const resultado = document.getElementById("imoveis");
+
+      try {
+        const resposta = await fetch("/imoveis");
+        if (!resposta.ok) {
+          throw new Error(`A API respondeu com status ${resposta.status}.`);
+        }
+
+        const imoveis = await resposta.json();
+        status.textContent = `${imoveis.length} imóvel(is) encontrado(s).`;
+        resultado.textContent = JSON.stringify(imoveis, null, 2);
+      } catch (erro) {
+        status.textContent = "Não foi possível carregar os imóveis.";
+        resultado.textContent = erro.message;
+      }
+    })();
+  </script>
+</body>
+</html>
